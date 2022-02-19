@@ -40,6 +40,8 @@ let player;
 function gameOver(){
   playerTravelled=0;
   initialRender();
+  actions.right.tapped = false;
+  actions.left.tapped = false;
 }
 
 function initialRender(){
@@ -77,8 +79,11 @@ function animation(){
   requestAnimationFrame(animation);
 
   // clear canvas
+  ctx.beginPath(); // to clear arc from canvas
   ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.closePath(); // to clear arc from canvas
 
+  
   // draw all backgrounds
   backgrounds.forEach(background => {
     background.draw(ctx)

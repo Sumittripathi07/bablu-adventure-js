@@ -1,6 +1,6 @@
 export default class Player{
   gravity = 0.5;
-  constructor(x=100,y=100,width=50,height=50){
+  constructor(x=100,y=100,width=20,height=20){
     this.x = x;
     this.y = y;
     this.width = width;
@@ -17,7 +17,10 @@ export default class Player{
 
   draw(ctx){
     ctx.fillStyle = 'red';
-    ctx.fillRect(this.x, this.y, this.width, this.height);
+    //ctx.fillRect(this.x, this.y, this.width, this.height);
+    ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI);
+    //ctx.stroke();
+    ctx.fill();
   }
 
   update(ctx, canvas){
