@@ -36,6 +36,10 @@ export default class StageMap{
     return 8410;
   }
 
+  timeout(){
+    return 30;
+  }
+
   stages(){
     return [
       new Stage(0,this.canvas.height - 180,stageImg), 

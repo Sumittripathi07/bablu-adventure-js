@@ -35,6 +35,9 @@ export default class StageMap{
   winScore(){
     return 8410;
   }
+  timeout(){
+    return 30;
+  }
 
   stages(){
     return [

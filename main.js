@@ -7,8 +7,9 @@ const ctx = canvas.getContext('2d');
 const score = document.querySelector('#score');
 const mapid = document.querySelector('#mapid');
 const lifeEl = document.querySelector('#life');
+const timeoutEl = document.querySelector('#timeout');
 const min_speed = 5;
-const max_speed = 15
+const max_speed = 15;
 const accelaration = 0.25;
 
 canvas.width = 1400; 
@@ -27,6 +28,7 @@ const actions = {
 let currentMap = 1;
 let totalMaps = 2;
 let life =3;
+let timeout;
 
 let player;
 let winScore;
@@ -50,9 +52,11 @@ function gameOver(wait=3000){
   player.dead();
   player.velocity.x = 0;
   player.velocity.y = -30;
-  setTimeout(()=>{ --life},wait);
-  if(life <= 1){
+  setTimeout(()=>{ 
+    --life;
     lifeEl.textContent = life;
+  },wait);
+  if(life <= 1){
     setTimeout(()=>gameOverObj.playGameOverSound(), wait+200) ;
     return;
   }
@@ -88,6 +92,7 @@ function resetMap(){
   winScore = map.winScore();
 
   // reset all variables
+  timeout = Date.now() + (map.timeout() * 1000);
   speed = min_speed;
   playerTravelled = 0;
   score.textContent = lastScore;
@@ -118,6 +123,7 @@ function animation(){
   if(isGameWon){
     return;
   }
+  
 
   // clear canvas
   clearCanvas();
@@ -148,21 +154,39 @@ function animation(){
     return;
   }
 
+  if(Date.now() > timeout){
+    gameOver();
+    return;
+  }
+
   //set player speed
   setPlayerSpeed();
+
+  //set timeout
+  timeoutEl.textContent = Math.floor((timeout - Date.now())/1000);
   
   if(actions.left.tapped && player.x > 100){
     player.velocity.x = -speed;
   }else if(actions.right.tapped && player.x  < 400){
     player.velocity.x = speed;
   }else{
-    if(actions.right.tapped){
+    if(actions.right.tapped){ 
 
       playerTravelled += speed;
       
       // move stage to the left
       stages.forEach(stage => {
         stage.x -= speed;
+
+        /*
+        // to make player not cross side wall of stage
+        if(player.x + player.width > stage.x && 
+          player.x + player.width < stage.x + stage.width && 
+          player.y > stage.y && 
+          player.y < stage.y + stage.height){
+            player.x = (stage.x - player.width) - 5;
+        }
+        */
       });
       
       // move background to the left
@@ -185,6 +209,17 @@ function animation(){
       // move stage to the right
       stages.forEach(stage => {
         stage.x += speed;
+
+        /*
+        // to make player not cross side wall of stage
+        if(player.x  < stage.x + stage.width && 
+          player.x  > stage.x  && 
+          player.y > stage.y && 
+          player.y < stage.y + stage.height){
+            player.x = (stage.x + stage.width + 5);
+        }
+        */
+
       });
 
       // move wallpapers to the right
@@ -214,7 +249,14 @@ function animation(){
 
     // player movement to last left corner
     if(actions.left.tapped && playerTravelled <= 0 && player.x > 1){
-      player.velocity.x = -speed;
+      if(player.x + player.width > stage.x && 
+          player.x + player.width < stage.x + stage.width && 
+          player.y > stage.y && 
+          player.y < stage.y + stage.height){
+            player.x = stage.x - player.width;
+      }else{
+        player.velocity.x = -speed;
+      }
     }
 
     // to check if player is colliding with stage, movement on y-axis

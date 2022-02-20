@@ -19,7 +19,6 @@ export default class GameOver{
   }
 
   playGameOverSound(){
-    console.log('yaha aa yaa tha')
     this.gameOverSound.currentTime = 0;
     this.gameOverSound.play();
   }
