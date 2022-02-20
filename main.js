@@ -1,6 +1,9 @@
+
 import gameOverImgPath from './assets/images/gameover.png';
 import GameOver from './gameover.js';
 import load from './maps/index.js';
+import './style.css';
+
 
 const canvas= document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
