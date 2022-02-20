@@ -1,5 +1,5 @@
 
-@import url('http://fonts.cdnfonts.com/css/press-start-2p');
+@import url('https://fonts.cdnfonts.com/css/press-start-2p');
 html {font-family: 'Press Start 2P', sans-serif; }
 @supports (font-variation-settings: normal) {
   html { font-family: 'Press Start 2P', sans-serif; }
