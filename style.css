@@ -31,7 +31,7 @@ body{
   left: 0;
   padding: 20px;
   height: 60px;
-  width: 98vw;
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
