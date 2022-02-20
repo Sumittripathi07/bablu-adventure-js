@@ -1,6 +1,51 @@
+@import url('http://fonts.cdnfonts.com/css/press-start-2p');
+html {font-family: 'Press Start 2P', sans-serif; }
+@supports (font-variation-settings: normal) {
+  html { font-family: 'Press Start 2P', sans-serif; }
+}
+
 body{
   margin:0;
-  padding:0;
-  background-color: skyblue;
+  padding:20px;
+  background-color: black;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   overflow: hidden;
+
+}
+
+.reel,canvas{
+  height: 770px;
+  width: 1400px;
+  background-color: #5A98FC;
+}
+
+.header{
+  position: absolute;
+  top: 0;
+  left: 0;
+  padding: 20px;
+  height: 60px;
+  width: 98vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: white;
+}
+
+#score{
+  min-width: 80px;
+  display: inline-block;
+}
+.stats, .stat-items{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.stat-items > span:first-child{
+  margin-right: 10px;
+  margin-bottom: 10px;
 }

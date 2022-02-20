@@ -1,14 +1,21 @@
+import clearSound from './assets/sounds/clear.mp3';
+import deadSound from './assets/sounds/dead.mp3';
+import jumpSound from './assets/sounds/jump.mp3';
+
 export default class Player{
-  gravity = 0.5;
+  gravity = 1.3;
   constructor(x=100,y=100,width=20,height=20){
     this.x = x;
     this.y = y;
     this.width = width;
     this.height = height;
     this.velocity = {
-     x : 0,
-     y : 0 
+     x : 5,
+     y : 0.5 
     }
+    this.jumpSound = new Audio(jumpSound);
+    this.deadSound = new Audio(deadSound);
+    this.clearSound = new Audio(clearSound);
   }
 
   onGameOver(gameOver){
@@ -17,10 +24,7 @@ export default class Player{
 
   draw(ctx){
     ctx.fillStyle = 'red';
-    //ctx.fillRect(this.x, this.y, this.width, this.height);
-    ctx.arc(this.x, this.y, this.width, 0, 2 * Math.PI);
-    //ctx.stroke();
-    ctx.fill();
+    ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 
   update(ctx, canvas){
@@ -31,10 +35,23 @@ export default class Player{
     if(this.y + this.height + this.velocity.y <= canvas.height){
       this.velocity.y += this.gravity;
     }else{
-      //this.velocity.y = 0;
-      console.log('game over');
       this.gameOver();
     }
+  }
+
+  jump(){
+    this.jumpSound.currentTime = 0;
+    this.jumpSound.play();
+    this.velocity.y = -20;
+  }
+
+  dead(){
+    this.deadSound.currentTime = 0;
+    this.deadSound.play();
+  }
+  clear(){
+    this.clearSound.currentTime = 0;
+    this.clearSound.play();
   }
   
 }
