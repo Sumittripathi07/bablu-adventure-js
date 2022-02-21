@@ -54,8 +54,11 @@ let isGameOver =false;
 let isGameWon =false;
 
 
-
-
+// performance optimization
+// to stop repainting the canvas when player is not moving
+let lastPlayerX = 0;
+let lastPlayerY = 0;
+let lastPlayerTravelled = 0;
 
 function gameOver(wait=3000){
   if(isGameOver) return;
@@ -150,18 +153,30 @@ function animation(){
 
   if(isGameWon){ return }
 
-  // clear canvas
-  clearCanvas();
+  if(lastPlayerX !== player.x || 
+    lastPlayerY !== player.y || 
+    lastPlayerTravelled !== playerTravelled){
+      
+    //console.log('paing canvas');
+    // clear canvas
+    clearCanvas();
+    
+    // paint all objects
+    drawAllObjects([
+      wallpapers,
+      backgrounds,
+      stages,
+    ]);
+    
+    lastPlayerX = player.x;
+    lastPlayerY = player.y;
+    lastPlayerTravelled = playerTravelled;
+  }
   
-  // paint all objects
-  drawAllObjects([
-    wallpapers,
-    backgrounds,
-    stages,
-  ]);
-   
   // paint player
-  player.update(ctx,canvas);
+    player.update(ctx,canvas);
+
+  
 
   if(life <= 0){
     gameOverObj.draw(ctx, canvas); 
@@ -236,6 +251,9 @@ function animation(){
       player.velocity.y = 0;
     }
   });
+
+  
+
 }
 
 function drawObjects(objs){
