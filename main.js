@@ -183,7 +183,7 @@ function animation(){
   }
   
   // paint player
-    player.update(ctx,canvas);
+  player.update(ctx,canvas,playerTravelled);
 
   
 
@@ -251,7 +251,7 @@ function animation(){
     }
   } 
 
-  // player collision detection with stage on y-axis
+  // check if player is out of bounds
   stages.forEach(stage => {
     if(player.y + player.height <= stage.y && 
       player.y + player.height + player.velocity.y >= stage.y && 
@@ -260,8 +260,6 @@ function animation(){
       player.velocity.y = 0;
     }
   });
-
-  
 
 }
 

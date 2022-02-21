@@ -17,6 +17,9 @@ export default class Player{
     this.deadSound = new Audio(deadSound);
     this.clearSound = new Audio(clearSound);
     this.isGameOver =false;
+    this.lastX =null;
+    this.lastY =null;
+    this.lastPlayerTravelled =null;
   }
 
   onGameOver(gameOver){
@@ -28,8 +31,13 @@ export default class Player{
     ctx.fillRect(this.x, this.y, this.width, this.height);
   }
 
-  update(ctx, canvas){
-    this.draw(ctx);
+  update(ctx, canvas, playerTravelled){
+    if(this.lastX !== this.x || this.lastY !== this.y || this.lastPlayerTravelled !== playerTravelled){
+      this.draw(ctx);
+      this.lastX = this.x;
+      this.lastY = this.y;
+      this.lastPlayerTravelled = playerTravelled;
+    }
     this.y += this.velocity.y;
     this.x += this.velocity.x;
 
