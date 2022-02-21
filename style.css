@@ -76,6 +76,7 @@ body{
 
 .footer > div{
   display: flex;
+  margin-left: 20px;
 }
 .footer span{
   margin-right: 20px;
