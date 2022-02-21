@@ -36,6 +36,7 @@ const actions = {
 }
 
 // variable declarations
+let runAnimation = true;
 let currentMap = 1;
 let totalMaps = 2;
 let life =3;
@@ -72,7 +73,10 @@ function gameOver(wait=3000){
     lifeEl.textContent = life;
   },wait);
   if(life <= 1){
-    setTimeout(()=>gameOverObj.playGameOverSound(), wait+200) ;
+    setTimeout(()=>{
+      gameOverObj.playGameOverSound()
+      runAnimation = false;
+    }, wait+200) ;
     return;
   }
   setTimeout(setMap, wait);
@@ -148,8 +152,12 @@ function timeoutChecker(){
 
 
 function animation(){
-  // continues animation
-  requestAnimationFrame(animation);
+  //console.log('animation')
+  
+  // loop animation
+  if(runAnimation){
+    requestAnimationFrame(animation);
+  }
 
   if(isGameWon){ return }
 
@@ -157,7 +165,8 @@ function animation(){
     lastPlayerY !== player.y || 
     lastPlayerTravelled !== playerTravelled){
       
-    //console.log('paing canvas');
+    //console.log('painting canvas');
+
     // clear canvas
     clearCanvas();
     
