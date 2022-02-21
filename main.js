@@ -1,6 +1,7 @@
 
 
 import GameOver from './gameover.js';
+import Loading from './loading.js';
 import MapLoader from './maps/index.js';
 import './style.css';
 
@@ -12,7 +13,7 @@ const mapid = document.querySelector('#mapid');
 const lifeEl = document.querySelector('#life');
 const timeoutEl = document.querySelector('#timeout');
 const gameOverObj = new GameOver(570,250);
-
+const loading = new Loading(500,400);
 
 const min_speed = 5;
 const max_speed = 15;
@@ -23,6 +24,7 @@ window.paintBlockId = false;
 
 canvas.width = 1400; 
 canvas.height = 770;
+loading.draw(ctx);
 
 const actions = {
   right : {
@@ -38,6 +40,7 @@ let currentMap = 1;
 let totalMaps = 2;
 let life =3;
 let timeout;
+let timeoutKey;
 
 let player;
 let winner;
@@ -57,6 +60,7 @@ let isGameWon =false;
 function gameOver(wait=3000){
   if(isGameOver) return;
   isGameOver =true;
+  clearTimeout(timeoutKey);
   player.dead();
   player.velocity.x = 0;
   player.velocity.y = -30;
@@ -68,12 +72,13 @@ function gameOver(wait=3000){
     setTimeout(()=>gameOverObj.playGameOverSound(), wait+200) ;
     return;
   }
-  setTimeout(resetMap, wait);
+  setTimeout(setMap, wait);
 }
 
 function gameWon(wait=6000){
   if(isGameWon) return;
   isGameWon =true;
+  clearTimeout(timeoutKey);
   player.clear();
   player.velocity.x = 0;
   player.velocity.y = 0;
@@ -82,13 +87,13 @@ function gameWon(wait=6000){
   }else{
     currentMap = 1;
   }
-  setTimeout(resetMap, wait);
+  setTimeout(setMap, wait);
 }
 
 
 
 // reset and load map
-function resetMap(){
+function setMap(){
   const mapLoader = new MapLoader(ctx, canvas)
 
   lastScore += Math.floor(playerTravelled);
@@ -110,6 +115,8 @@ function resetMap(){
   actions.right.tapped = false;
   isGameOver = false;
   isGameWon = false;
+  timeoutChecker();
+
 }
 
 function clearCanvas(){
@@ -124,66 +131,59 @@ function setPlayerSpeed(){
   }
 }
 
+function timeoutChecker(){
+  let remain = Math.floor((timeout - Date.now())/1000);
+  timeoutEl.textContent = remain >= 0 ? remain : 0;
+  if(timeout - Date.now() <= 0 && !isGameOver && !isGameWon){
+    return gameOver();
+  }
+  if(isGameOver || isGameWon){
+    return;
+  }
+  timeoutKey = setTimeout(timeoutChecker,1000);
+}
+
 
 function animation(){
   // continues animation
   requestAnimationFrame(animation);
 
-  if(isGameWon){
-    return;
-  }
-  
+  if(isGameWon){ return }
 
   // clear canvas
   clearCanvas();
- 
-  // draw all backgrounds
-  backgrounds.forEach(background => {
-    background.draw(ctx)
-  })
-
-  // draw all stages
-  stages.forEach(stage => {
-    stage.draw(ctx)
-  })
-
-  // draw all wallpapers
-  wallpapers.forEach(wallpaper => {
-    wallpaper.draw(ctx)
-  });
+  
+  // paint all objects
+  drawAllObjects([
+    wallpapers,
+    backgrounds,
+    stages,
+  ]);
    
-  // painting player
+  // paint player
   player.update(ctx,canvas);
 
   if(life <= 0){
     gameOverObj.draw(ctx, canvas); 
   }
 
-  if(isGameOver){
-    return;
-  }
-
-  if(Date.now() > timeout){
-    gameOver();
-    return;
-  }
+  if(isGameOver){ return }
 
   // check if player won this stage
   if(player.x >= (winner.obj.x + winner.config.winner.x)){
     gameWon();
   }
 
-  //set player speed
+  //adjust player speed
   setPlayerSpeed();
 
-  //set timeout
-  timeoutEl.textContent = Math.floor((timeout - Date.now())/1000);
-  
-  if(actions.left.tapped && player.x > 100){
-    player.velocity.x = -speed;
-  }else if(actions.right.tapped && player.x  < 400){
+  // update player position  
+  if(actions.left.tapped && player.x > 200 ){
+    player.velocity.x = -speed; 
+  }else if(actions.right.tapped && player.x < 500 ){
     player.velocity.x = speed;
   }else{
+    player.velocity.x = 0;
     if(actions.right.tapped){ 
 
       playerTravelled += speed;
@@ -195,7 +195,7 @@ function animation(){
       
       // move background to the left
       backgrounds.forEach(background => {
-        background.x -= speed 
+        background.x -= speed * 0.66;
       });
 
 
@@ -205,8 +205,7 @@ function animation(){
       });
 
 
-
-    }else if(actions.left.tapped && playerTravelled > 1){
+    }else if(actions.left.tapped && playerTravelled > speed){
       
       playerTravelled -= speed;
 
@@ -224,33 +223,12 @@ function animation(){
       backgrounds.forEach(background => {
         background.x += speed * .66;
       });
+
     }
+  } 
 
-    
-
-  }
-
-  // movement and stage painting and collision detection
+  // player collision detection with stage on y-axis
   stages.forEach(stage => {
-
-    // player movement right and left
-    if(!(actions.left.tapped && player.x > 100 ) && !(actions.right.tapped && player.x  < 400)){
-      player.velocity.x = 0; 
-    }
-
-    // player movement to last left corner
-    if(actions.left.tapped && playerTravelled <= 0 && player.x > 1){
-      if(player.x + player.width > stage.x && 
-          player.x + player.width < stage.x + stage.width && 
-          player.y > stage.y && 
-          player.y < stage.y + stage.height){
-            player.x = stage.x - player.width;
-      }else{
-        player.velocity.x = -speed;
-      }
-    }
-
-    // to check if player is colliding with stage, movement on y-axis
     if(player.y + player.height <= stage.y && 
       player.y + player.height + player.velocity.y >= stage.y && 
       player.x + player.width >= stage.x &&  
@@ -260,14 +238,29 @@ function animation(){
   });
 }
 
-resetMap();
-animation();
+function drawObjects(objs){
+  objs.forEach(obj => {
+    obj.draw(ctx);
+  });
+}
+
+function drawAllObjects(collections){
+  collections.forEach(item => {
+    drawObjects(item);
+  });
+}
+
+
+
+window.onload = function(){
+  setMap();
+  animation();
+}
 
 window.addEventListener('keydown',({key})=>{
   switch(key){
-    // jump
     case ' ':  
-      // to check if player is on the ground
+      // to check if player is on the ground then jump
       if(player.velocity.y === 0){ 
         player.jump();    
       }
@@ -284,8 +277,6 @@ window.addEventListener('keydown',({key})=>{
 window.addEventListener('keyup',({key})=>{
   switch(key){
     case ' ':       
-      break;
-    case 'ArrowDown':
       break;
     case 'ArrowLeft':
       actions.left.tapped = false;

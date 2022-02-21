@@ -16,6 +16,7 @@ export default class Player{
     this.jumpSound = new Audio(jumpSound);
     this.deadSound = new Audio(deadSound);
     this.clearSound = new Audio(clearSound);
+    this.isGameOver =false;
   }
 
   onGameOver(gameOver){
@@ -35,6 +36,10 @@ export default class Player{
     if(this.y + this.height + this.velocity.y <= canvas.height){
       this.velocity.y += this.gravity;
     }else{
+      if(!this.isGameOver){
+        this.velocity.y = 0;
+      }
+      this.isGameOver =true;
       this.gameOver();
     }
   }
