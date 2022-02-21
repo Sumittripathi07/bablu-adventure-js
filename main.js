@@ -5,7 +5,6 @@ import Loading from './loading.js';
 import MapLoader from './maps/index.js';
 import './style.css';
 
-
 const canvas= document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 const score = document.querySelector('#score');
@@ -57,9 +56,9 @@ let isGameWon =false;
 
 // performance optimization
 // to stop repainting the canvas when player is not moving
-let lastPlayerX = 0;
-let lastPlayerY = 0;
-let lastPlayerTravelled = 0;
+//let lastPlayerX = 0;
+//let lastPlayerY = 0;
+//let lastPlayerTravelled = 0;
 
 function gameOver(wait=3000){
   if(isGameOver) return;
@@ -161,9 +160,9 @@ function animation(){
 
   if(isGameWon){ return }
 
-  if(lastPlayerX !== player.x || 
-    lastPlayerY !== player.y || 
-    lastPlayerTravelled !== playerTravelled){
+  //if(lastPlayerX !== player.x || 
+   //lastPlayerY !== player.y || 
+    //lastPlayerTravelled !== playerTravelled){
       
     //console.log('painting canvas');
 
@@ -177,10 +176,10 @@ function animation(){
       stages,
     ]);
     
-    lastPlayerX = player.x;
-    lastPlayerY = player.y;
-    lastPlayerTravelled = playerTravelled;
-  }
+    //lastPlayerX = player.x;
+    //lastPlayerY = player.y;
+   // lastPlayerTravelled = playerTravelled;
+  //}
   
   // paint player
   player.update(ctx,canvas,playerTravelled);
@@ -291,10 +290,12 @@ window.addEventListener('keydown',({key})=>{
       }
       break;
     case 'ArrowLeft':
-      actions.left.tapped = true;     
+      actions.left.tapped = true;   
+      player.changeActivity('run-left');  
       break;
     case 'ArrowRight':
     actions.right.tapped = true;
+    player.changeActivity('run-right');  
     break;
   }
 });
@@ -306,10 +307,12 @@ window.addEventListener('keyup',({key})=>{
     case 'ArrowLeft':
       actions.left.tapped = false;
       speed = min_speed;
+      player.changeActivity('stand-left');  
       break;
     case 'ArrowRight':
       actions.right.tapped = false;
       speed = min_speed;
+      player.changeActivity('stand-right');  
       break;
   }
 });

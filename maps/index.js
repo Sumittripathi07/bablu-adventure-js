@@ -91,7 +91,7 @@ export default class MapLoader{
   }
 
   getPlayer(gameOver){
-    player = new Player(100,100,30,30);
+    player = new Player();
     player.onGameOver(gameOver);
     player.update(this.ctx,this.canvas);
     return player;
@@ -111,7 +111,7 @@ export default class MapLoader{
       let img = that.getImage(obj.image);
       let width = that.getWidth(obj,img);
 
-      if(obj.afterPrevBlock){
+      if(!obj.ignorePreviousBlocks){
         x += currentX  ; 
       }
 
