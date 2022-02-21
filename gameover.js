@@ -1,15 +1,15 @@
 
+import gameOverImgPath from './assets/images/gameover.png';
 import gameOverSound from './assets/sounds/gameover.mp3';
 
 export default class GameOver{
-  constructor(x=100,y=100,img, width){
+  constructor(x=100,y=100, width, height){
     this.x = x;
     this.y = y;
-    this.image = img;
-    if(img){
-      this.width = width ? width : this.image.width;
-      this.height = this.image.height;
-    }
+    this.image = new Image();
+    this.image.src = gameOverImgPath;;
+    this.width = width ? width : this.image.width;
+    this.height = height ? height : this.image.height;
     this.gameOverSound = new Audio(gameOverSound);
   }
 

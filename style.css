@@ -29,13 +29,14 @@ body{
   position: absolute;
   top: 0;
   left: 0;
-  padding: 20px;
+  padding: 20px 20px;
   height: 60px;
   width: 100%;
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   align-items: center;
   background-color: yellowgreen;
+  margin-top: 10px;
 }
 
 #score{

@@ -1,7 +1,7 @@
 
-import gameOverImgPath from './assets/images/gameover.png';
+
 import GameOver from './gameover.js';
-import load from './maps/index.js';
+import MapLoader from './maps/index.js';
 import './style.css';
 
 
@@ -11,9 +11,15 @@ const score = document.querySelector('#score');
 const mapid = document.querySelector('#mapid');
 const lifeEl = document.querySelector('#life');
 const timeoutEl = document.querySelector('#timeout');
+const gameOverObj = new GameOver(570,250);
+
+
 const min_speed = 5;
 const max_speed = 15;
 const accelaration = 0.25;
+
+// paint id of each block on canvas for map debugging
+window.paintBlockId = false;
 
 canvas.width = 1400; 
 canvas.height = 770;
@@ -34,7 +40,7 @@ let life =3;
 let timeout;
 
 let player;
-let winScore;
+let winner;
 let lastScore = 0;
 let backgrounds=[];
 let stages = [];
@@ -44,9 +50,8 @@ let speed = min_speed;
 let isGameOver =false;
 let isGameWon =false;
 
-let gameOverImg = new Image();
-gameOverImg.src = gameOverImgPath;
-let gameOverObj = new GameOver(570,250,gameOverImg);
+
+
 
 
 function gameOver(wait=3000){
@@ -84,18 +89,19 @@ function gameWon(wait=6000){
 
 // reset and load map
 function resetMap(){
-  //console.log('currentMap', currentMap);
+  const mapLoader = new MapLoader(ctx, canvas)
+
   lastScore += Math.floor(playerTravelled);
   mapid.textContent = currentMap;
-  const map = load(currentMap, canvas);
-  backgrounds = map.backgrounds();
-  wallpapers = map.wallpapers();
-  stages = map.stages();
-  player = map.player(ctx,gameOver);
-  winScore = map.winScore();
+  const map = mapLoader.load(currentMap);
+  backgrounds = map.backgrounds;
+  wallpapers = map.wallpapers;
+  stages = map.stages;
+  player = mapLoader.getPlayer(gameOver);
+  winner = map.winner;
 
   // reset all variables
-  timeout = Date.now() + (map.timeout() * 1000);
+  timeout = Date.now() + (map.timeout * 1000);
   speed = min_speed;
   playerTravelled = 0;
   score.textContent = lastScore;
@@ -162,6 +168,11 @@ function animation(){
     return;
   }
 
+  // check if player won this stage
+  if(player.x >= (winner.obj.x + winner.config.winner.x)){
+    gameWon();
+  }
+
   //set player speed
   setPlayerSpeed();
 
@@ -180,16 +191,6 @@ function animation(){
       // move stage to the left
       stages.forEach(stage => {
         stage.x -= speed;
-
-        /*
-        // to make player not cross side wall of stage
-        if(player.x + player.width > stage.x && 
-          player.x + player.width < stage.x + stage.width && 
-          player.y > stage.y && 
-          player.y < stage.y + stage.height){
-            player.x = (stage.x - player.width) - 5;
-        }
-        */
       });
       
       // move background to the left
@@ -212,17 +213,6 @@ function animation(){
       // move stage to the right
       stages.forEach(stage => {
         stage.x += speed;
-
-        /*
-        // to make player not cross side wall of stage
-        if(player.x  < stage.x + stage.width && 
-          player.x  > stage.x  && 
-          player.y > stage.y && 
-          player.y < stage.y + stage.height){
-            player.x = (stage.x + stage.width + 5);
-        }
-        */
-
       });
 
       // move wallpapers to the right
@@ -236,9 +226,7 @@ function animation(){
       });
     }
 
-    if(playerTravelled >= winScore){
-      gameWon();
-    }
+    
 
   }
 
