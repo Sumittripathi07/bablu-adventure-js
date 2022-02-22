@@ -3,6 +3,12 @@ simple arcade game written in javascript
 
 
 ```bash
+npm install
+```
+to all dependencies
+
+
+```bash
 npm run dev
 ```
 to run local server
