@@ -29,9 +29,9 @@ export default class Player{
     this.clearSound = new Audio(clearSound);
 
     this.isGameOver =false;
-    //this.lastX =null;
-    //this.lastY =null;
-    //this.lastPlayerTravelled =null;
+    this.lastX =null;
+    this.lastY =null;
+    this.lastPlayerTravelled =null;
 
     this.frames=0;
     this.sprites ={
@@ -104,18 +104,29 @@ export default class Player{
   }
 
   update(ctx, canvas, playerTravelled){
-    // for optimization
+    // to avoid unnecessary painting
     //if(this.lastX !== this.x || this.lastY !== this.y || this.lastPlayerTravelled !== playerTravelled){
+      
       this.frames++;
       if(this.frames >= 30 && (this.currentActivity === this.sprites.run.right || this.currentActivity === this.sprites.run.left ) ){
         this.frames =0;
       }else if(this.frames >= 60){
         this.frames =0
       }
+      
+     /*
+     if((this.currentActivity === this.sprites.run.right || this.currentActivity === this.sprites.run.left)){
+      if(this.frames >= 30){
+        this.frames = 0;
+      }else{
+        this.frames++;
+      }
+     }*/
+     
       this.draw(ctx);
-      //this.lastX = this.x;
-      //this.lastY = this.y;
-      //this.lastPlayerTravelled = playerTravelled;
+     // this.lastX = this.x;
+     // this.lastY = this.y;
+     // this.lastPlayerTravelled = playerTravelled;
     //}
     this.y += this.velocity.y;
     this.x += this.velocity.x;

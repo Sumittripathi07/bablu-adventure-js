@@ -160,6 +160,7 @@ function animation(){
 
   if(isGameWon){ return }
 
+  // to avoid unnecessary repainting
   //if(lastPlayerX !== player.x || 
    //lastPlayerY !== player.y || 
     //lastPlayerTravelled !== playerTravelled){
@@ -178,7 +179,7 @@ function animation(){
     
     //lastPlayerX = player.x;
     //lastPlayerY = player.y;
-   // lastPlayerTravelled = playerTravelled;
+    //lastPlayerTravelled = playerTravelled;
   //}
   
   // paint player
