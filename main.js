@@ -284,35 +284,38 @@ window.onload = function(){
   animation();
 }
 
-window.addEventListener('keydown',({key})=>{
-  switch(key){
-    case ' ':  
+window.addEventListener('keydown',({key, keyCode})=>{
+  //console.log(keyCode)
+  switch(keyCode){
+    case /*' '*/ 32:  
       // to check if player is on the ground then jump
       if(player.velocity.y === 0){ 
         player.jump();    
       }
       break;
-    case 'ArrowLeft':
-      actions.left.tapped = true;   
+    case /*'ArrowLeft'*/ 37:
+      actions.right.tapped = false;  
+      actions.left.tapped = true;  
       player.changeActivity('run-left');  
       break;
-    case 'ArrowRight':
-    actions.right.tapped = true;
-    player.changeActivity('run-right');  
+    case /*'ArrowRight'*/ 39:
+      actions.left.tapped = false;  
+      actions.right.tapped = true;
+      player.changeActivity('run-right');  
     break;
   }
 });
 
-window.addEventListener('keyup',({key})=>{
-  switch(key){
-    case ' ':       
+window.addEventListener('keyup',({key, keyCode})=>{
+  switch(keyCode){
+    case /*' '*/ 32:       
       break;
-    case 'ArrowLeft':
+    case /*'ArrowLeft'*/ 37:
       actions.left.tapped = false;
       speed = min_speed;
       player.changeActivity('stand-left');  
       break;
-    case 'ArrowRight':
+    case /*'ArrowRight'*/ 39:
       actions.right.tapped = false;
       speed = min_speed;
       player.changeActivity('stand-right');  
