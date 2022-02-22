@@ -129,7 +129,7 @@ export default class Player{
       this.velocity.y += this.gravity;
     }else{
       if(!this.isGameOver){
-        this.velocity.y = 0;
+       this.velocity.y = 0;
       }
       this.isGameOver =true;
       this.gameOver();

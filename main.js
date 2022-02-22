@@ -188,7 +188,7 @@ function animation(){
   setPlayerSpeed();
 
   // update player position  
-  if(actions.left.tapped && player.x > 200 ){
+  if(actions.left.tapped && player.x > 500 ){
     player.velocity.x = -speed; 
   }else if(actions.right.tapped && player.x < 500 ){
     player.velocity.x = speed;
@@ -244,7 +244,23 @@ function animation(){
       player.x + player.width >= stage.x &&  
       player.x <= stage.x + stage.width ){
       player.velocity.y = 0;
-    }
+    }else if(
+      stage.type === "hanger" &&
+      (player.x+ player.width >= stage.x && player.x+ player.width < stage.x + stage.width ) &&
+      ((player.y < stage.y && player.y + player.height > stage.y+1) || (player.y >= stage.y && player.y + player.height > stage.y+1))
+      ){
+        player.x -= speed;
+    }/*else if(
+      stage.type === "hanger" &&
+      player.state === "run-left" &&
+      ((stage.x + stage.width <= player.x)  ) &&
+      ((player.x - (stage.x + stage.width)) <= max_speed  ) &&
+      ((player.x - (stage.x + stage.width)) >= 0  ) &&
+      ((player.y < stage.y && player.y + player.height > stage.y+3) || (player.y >= stage.y && player.y + player.height > stage.y+3))
+    ){
+      console.log(stage.obj.id)
+      player.velocity.x = 0;
+    }*/
   });
 
 }

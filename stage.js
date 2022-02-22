@@ -7,6 +7,7 @@ export default class Stage{
     this.width = width ? width : this.image ? this.image.width : 0;
     this.height = height ? height :this.image ? this.image.height : 0;
     this.obj = obj;
+    this.type = obj.image;
   }
 
   draw(ctx){
