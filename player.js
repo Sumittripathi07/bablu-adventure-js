@@ -15,7 +15,8 @@ function createImage(img){
 
 export default class Player{
   gravity = 1.3;
-  constructor(x=100,y=100,width=66,height=150){
+  constructor(ctx, x=100,y=100,width=66,height=150){
+    this.ctx = ctx;
     this.x = x;
     this.y = y;
     this.width = width;
@@ -33,7 +34,6 @@ export default class Player{
     this.lastY =null;
     this.lastPlayerTravelled =null;
 
-    this.frames=0;
     this.sprites ={
       stand :{
         singleSnapWidth:177,
@@ -48,51 +48,55 @@ export default class Player{
         left: createImage(playerRunLeft)
       }
     }
+    this.frames=0;
     this.currentActivity = this.sprites.stand.right;
     this.currentSnapWidth = this.sprites.stand.singleSnapWidth;
+    this.state ='stand-right';
 
   }
 
   changeActivity(activity){
-    //this.currentActivity = activity;
     switch(activity){
       case 'stand-left':
         this.currentActivity = this.sprites.stand.left;
         this.currentSnapWidth = this.sprites.stand.singleSnapWidth;
         this.width = this.sprites.stand.width;
+        this.state = 'stand-left';
         break;
       case 'stand-right':
         this.currentActivity = this.sprites.stand.right;
         this.currentSnapWidth = this.sprites.stand.singleSnapWidth;
         this.width = this.sprites.stand.width;
+        this.state = 'stand-right';
         break;
       case 'run-left':
         this.currentActivity = this.sprites.run.left;
         this.currentSnapWidth = this.sprites.run.singleSnapWidth;
         this.width = this.sprites.run.width;
+        this.state = 'run-left';
         break;
       case 'run-right':
         this.currentActivity = this.sprites.run.right;
         this.currentSnapWidth = this.sprites.run.singleSnapWidth;
         this.width = this.sprites.run.width;
+        this.state = 'run-right';
         break;
     }
   }
 
 
-  
-
   onGameOver(gameOver){
     this.gameOver = gameOver;
   }
 
-  draw(ctx){
-    //ctx.fillStyle = 'red';
-    //ctx.fillRect(this.x, this.y, this.width, this.height);
-    //console.log(this.currentSnapWidth * this.frames)
-    ctx.drawImage(
+  draw(){
+    let frames = this.state === 'stand-left' || this.state === 'stand-right'  ? 0 :
+    this.state === "run-right" ? this.frames :
+      (29- this.frames) ;
+
+    this.ctx.drawImage(
       this.currentActivity, 
-      this.currentSnapWidth * this.frames,
+      this.currentSnapWidth * frames,
       0,
       this.currentSnapWidth,
       400,
@@ -103,31 +107,21 @@ export default class Player{
     );
   }
 
-  update(ctx, canvas, playerTravelled){
-    // to avoid unnecessary painting
-    //if(this.lastX !== this.x || this.lastY !== this.y || this.lastPlayerTravelled !== playerTravelled){
-      
-      this.frames++;
-      if(this.frames >= 30 && (this.currentActivity === this.sprites.run.right || this.currentActivity === this.sprites.run.left ) ){
-        this.frames =0;
-      }else if(this.frames >= 60){
-        this.frames =0
-      }
-      
-     /*
-     if((this.currentActivity === this.sprites.run.right || this.currentActivity === this.sprites.run.left)){
-      if(this.frames >= 30){
+  update(canvas, playerTravelled){
+
+    if((this.state === "run-left" || this.state === "run-right")){
+      if(this.frames >= 29){
         this.frames = 0;
       }else{
         this.frames++;
       }
-     }*/
-     
-      this.draw(ctx);
-     // this.lastX = this.x;
-     // this.lastY = this.y;
-     // this.lastPlayerTravelled = playerTravelled;
-    //}
+    }
+    
+    this.draw();
+    this.lastX = this.x;
+    this.lastY = this.y;
+    this.lastPlayerTravelled = playerTravelled;
+
     this.y += this.velocity.y;
     this.x += this.velocity.x;
 

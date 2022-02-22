@@ -91,9 +91,9 @@ export default class MapLoader{
   }
 
   getPlayer(gameOver){
-    player = new Player();
+    player = new Player(this.ctx);
     player.onGameOver(gameOver);
-    player.update(this.ctx,this.canvas);
+    player.update(this.canvas);
     return player;
   }
 
