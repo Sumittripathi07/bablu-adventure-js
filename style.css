@@ -1,14 +1,16 @@
-
 @import url('https://fonts.cdnfonts.com/css/press-start-2p');
-html {font-family: 'Press Start 2P', sans-serif; }
+html {
+  font-family: 'Press Start 2P', sans-serif;
+}
 @supports (font-variation-settings: normal) {
-  html { font-family: 'Press Start 2P', sans-serif; }
+  html {
+    font-family: 'Press Start 2P', sans-serif;
+  }
 }
 
-
-body{
-  margin:0;
-  padding-top:20px;
+body {
+  margin: 0;
+  padding-top: 20px;
   background-color: black;
   width: 100vw;
   height: 100vh;
@@ -16,16 +18,16 @@ body{
   justify-content: center;
   align-items: center;
   overflow: hidden;
-
 }
 
-.reel,canvas{
+.reel,
+canvas {
   height: 770px;
   width: 1400px;
-  background-color: #5A98FC;
+  background-color: #5a98fc;
 }
 
-.header{
+.header {
   position: absolute;
   top: 0;
   left: 0;
@@ -39,20 +41,21 @@ body{
   margin-top: 10px;
 }
 
-#score{
+#score {
   min-width: 80px;
   display: inline-block;
 }
-.stats, .stat-items{
+.stats,
+.stat-items {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
 }
 
-.stat-items > span:first-child{
+.stat-items > span:first-child {
   margin-right: 10px;
   margin-bottom: 10px;
 }
-.footer{
+.footer {
   position: fixed;
   bottom: 0;
   left: 0;
@@ -64,19 +67,18 @@ body{
   align-items: center;
 }
 
-.footer a{
+.footer a {
   text-decoration: none;
 }
 
-.footer .creator{
+.footer .creator {
   display: flex;
   align-items: center;
-  
 }
 
-.footer > div{
+.footer > div {
   display: flex;
 }
-.footer span{
+.footer span {
   margin-right: 20px;
 }

@@ -1,174 +1,187 @@
-import castle from '../assets/images/castle.png';
-import background from '../assets/images/cloud.png';
-import hanger from '../assets/images/hanger.png';
-import stage from '../assets/images/stage.png';
-import Background from '../background';
-import Player from '../player';
-import Stage from '../stage';
-import Wallpaper from '../wallpaper';
-import map1 from './map1.js';
-import map2 from './map2.js';
+import castle from '../assets/images/castle.png'
+import background from '../assets/images/cloud.png'
+import hanger from '../assets/images/hanger.png'
+import stage from '../assets/images/stage.png'
+import Background from '../background'
+import Player from '../player'
+import Stage from '../stage'
+import Wallpaper from '../wallpaper'
+import map1 from './map1.js'
+import map2 from './map2.js'
 
+let stageImg = new Image()
+stageImg.src = stage
 
+let hangerImg = new Image()
+hangerImg.src = hanger
 
-let stageImg = new Image();
-stageImg.src = stage;
+let castleImg = new Image()
+castleImg.src = castle
 
-let hangerImg = new Image();
-hangerImg.src = hanger;
+let backgroundImg = new Image()
+backgroundImg.src = background
 
-let castleImg = new Image();
-castleImg.src = castle;
+let player = new Player(100, 100, 20, 20)
 
-let backgroundImg = new Image();
-backgroundImg.src = background;
+export default class MapLoader {
+  objectXYs = {}
 
-let player = new Player(100,100,20,20);
-
-
-
-
-export default class MapLoader{
-
-  objectXYs = {
-
+  constructor(ctx, canvas) {
+    this.ctx = ctx
+    this.canvas = canvas
   }
-  
-  constructor(ctx,canvas){
-    this.ctx = ctx;
-    this.canvas = canvas;
-  }
-  getImage(img){
-    switch(img){
+  getImage(img) {
+    switch (img) {
       case 'stage':
-        return stageImg;
+        return stageImg
       case 'hanger':
-        return hangerImg;
+        return hangerImg
       case 'castle':
-        return castleImg;
+        return castleImg
       case 'background':
-        return backgroundImg;
+        return backgroundImg
       default:
-        return null;
+        return null
     }
   }
-  getObject(objName){
-    switch(objName){
+  getObject(objName) {
+    switch (objName) {
       case 'stage':
-        return Stage;
+        return Stage
       case 'player':
-        return Player;
+        return Player
       case 'background':
-        return Background;
+        return Background
       case 'wallpaper':
-        return Wallpaper;
+        return Wallpaper
       default:
-        return null;
+        return null
     }
   }
 
-  getWidth(obj, img){
-    return obj.width ? obj.width : 
-      img ? img.width : 
-      0;
+  getWidth(obj, img) {
+    return obj.width ? obj.width : img ? img.width : 0
   }
 
-  repeatObject(times, cls){
-    let that =this;
-    return function(x,y,img,width,height,obj){
-      return Array.from({length: times}, (v,i) => {
-        let retObj = new cls(x + (i* (width ? width : img.width)),y,img,width,height,obj);
-        if(obj.winner){
+  repeatObject(times, cls) {
+    let that = this
+    return function (x, y, img, width, height, obj) {
+      return Array.from({ length: times }, (v, i) => {
+        let retObj = new cls(
+          x + i * (width ? width : img.width),
+          y,
+          img,
+          width,
+          height,
+          obj
+        )
+        if (obj.winner) {
           obj.winner.x = obj.winner.x || 0
           that.winner = {
-            obj : retObj,
-            config : obj
-          };
+            obj: retObj,
+            config: obj
+          }
         }
-        return retObj;
-      });
+        return retObj
+      })
     }
   }
 
-  getPlayer(gameOver){
-    player = new Player(this.ctx);
-    player.onGameOver(gameOver);
-    player.update(this.canvas);
-    return player;
+  getPlayer(gameOver) {
+    player = new Player(this.ctx)
+    player.onGameOver(gameOver)
+    player.update(this.canvas)
+    return player
   }
 
-  flat(arr){
-    return arr.reduce((acc,curr) => acc.concat(curr),[]);
+  flat(arr) {
+    return arr.reduce((acc, curr) => acc.concat(curr), [])
   }
 
-  loadObjects(objs,name){
-    const that = this;
+  loadObjects(objs, name) {
+    const that = this
     let currentX = 0
-    return objs.map(obj => {
-      
-      let x = obj.x ? obj.x : 0;
-      let y = obj.y < 0 ? that.canvas.height + obj.y : obj.y;
-      let img = that.getImage(obj.image);
-      let width = that.getWidth(obj,img);
+    return objs.map((obj) => {
+      let x = obj.x ? obj.x : 0
+      let y = obj.y < 0 ? that.canvas.height + obj.y : obj.y
+      let img = that.getImage(obj.image)
+      let width = that.getWidth(obj, img)
 
-      if(!obj.ignorePreviousBlocks){
-        x += currentX  ; 
+      if (!obj.ignorePreviousBlocks) {
+        x += currentX
       }
 
-      if(obj && obj.at && obj.at.id && obj.at.from === 'end' && that.objectXYs[obj.at.id]){
-        x += that.objectXYs[obj.at.id].x + that.objectXYs[obj.at.id].width;  
-      }else if(obj && obj.at && obj.at.id && obj.at.from === 'start' && that.objectXYs[obj.at.id]){
-        x += that.objectXYs[obj.at.id].x;
+      if (
+        obj &&
+        obj.at &&
+        obj.at.id &&
+        obj.at.from === 'end' &&
+        that.objectXYs[obj.at.id]
+      ) {
+        x += that.objectXYs[obj.at.id].x + that.objectXYs[obj.at.id].width
+      } else if (
+        obj &&
+        obj.at &&
+        obj.at.id &&
+        obj.at.from === 'start' &&
+        that.objectXYs[obj.at.id]
+      ) {
+        x += that.objectXYs[obj.at.id].x
       }
 
-      currentX = (x + (width * (obj.repeat || 1)));
+      currentX = x + width * (obj.repeat || 1)
       that.objectXYs[obj.id] = {
         x,
         y,
-        width : (width * (obj.repeat || 1))
+        width: width * (obj.repeat || 1)
       }
-      if(obj.repeat){
-        return that.repeatObject(obj.repeat, that.getObject(name))(x,y,img,width,null,obj);
+      if (obj.repeat) {
+        return that.repeatObject(obj.repeat, that.getObject(name))(
+          x,
+          y,
+          img,
+          width,
+          null,
+          obj
+        )
       }
 
-      let retObj = new (that.getObject(name))(x,y,img,width,null,obj);
-      if(obj.winner){
+      let retObj = new (that.getObject(name))(x, y, img, width, null, obj)
+      if (obj.winner) {
         obj.winner.x = obj.winner.x || 0
         that.winner = {
-          obj : retObj,
-          config : obj
-        };
+          obj: retObj,
+          config: obj
+        }
       }
-      return retObj;
-    });
+      return retObj
+    })
   }
 
- 
-
-  loadMap(mapObj, mapId){
-    let stages, backgrounds, wallpapers, winScore;
-    stages = this.loadObjects(mapObj.stages, 'stage');
-    backgrounds = this.loadObjects(mapObj.backgrounds, 'background');
-    wallpapers = this.loadObjects(mapObj.wallpapers, 'wallpaper');
-    if(!this.winner){
-      throw Error(`No winner strategy found in map ${mapId}`);
+  loadMap(mapObj, mapId) {
+    let stages, backgrounds, wallpapers, winScore
+    stages = this.loadObjects(mapObj.stages, 'stage')
+    backgrounds = this.loadObjects(mapObj.backgrounds, 'background')
+    wallpapers = this.loadObjects(mapObj.wallpapers, 'wallpaper')
+    if (!this.winner) {
+      throw Error(`No winner strategy found in map ${mapId}`)
     }
     return {
-      stages : this.flat(stages),
+      stages: this.flat(stages),
       wallpapers: this.flat(wallpapers),
       backgrounds: this.flat(backgrounds),
-      winner : this.winner,
+      winner: this.winner,
       timeout: mapObj.timeout
     }
   }
 
-  load(mapId){
-    switch(mapId){
+  load(mapId) {
+    switch (mapId) {
       case 2:
-        return this.loadMap(map2, mapId);
+        return this.loadMap(map2, mapId)
       case 1:
       default:
-        return this.loadMap(map1, mapId);
+        return this.loadMap(map1, mapId)
     }
   }
-} 
+}
