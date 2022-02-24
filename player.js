@@ -51,6 +51,7 @@ export default class Player {
     this.currentActivity = this.sprites.stand.right
     this.currentSnapWidth = this.sprites.stand.singleSnapWidth
     this.state = 'stand-right'
+    this.sound = true
   }
 
   changeActivity(activity) {
@@ -136,17 +137,23 @@ export default class Player {
   }
 
   jump() {
-    this.jumpSound.currentTime = 0
-    this.jumpSound.play()
+    if (this.sound) {
+      this.jumpSound.currentTime = 0
+      this.jumpSound.play()
+    }
     this.velocity.y = -20
   }
 
   dead() {
-    this.deadSound.currentTime = 0
-    this.deadSound.play()
+    if (this.sound) {
+      this.deadSound.currentTime = 0
+      this.deadSound.play()
+    }
   }
   clear() {
-    this.clearSound.currentTime = 0
-    this.clearSound.play()
+    if (this.sound) {
+      this.clearSound.currentTime = 0
+      this.clearSound.play()
+    }
   }
 }

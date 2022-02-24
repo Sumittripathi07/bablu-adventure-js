@@ -9,6 +9,8 @@ const score = document.querySelector('#score')
 const mapid = document.querySelector('#mapid')
 const lifeEl = document.querySelector('#life')
 const timeoutEl = document.querySelector('#timeout')
+const sound = document.querySelector('#sound_icon')
+
 const gameOverObj = new GameOver(570, 250)
 const loading = new Loading(500, 400)
 
@@ -113,6 +115,7 @@ function setMap() {
   isGameWon = false
   timeoutKey = 0
   timeoutChecker()
+  setSoundStatus(false)
 }
 
 function clearCanvas() {
@@ -245,6 +248,31 @@ function animation() {
   })
 }
 
+function setSoundStatus(flip) {
+  if (!flip) {
+    if (localStorage.getItem('game_sound') === 'on') {
+      window.gameSound = 'on'
+    } else {
+      window.gameSound = 'off'
+    }
+  } else {
+    if (localStorage.getItem('game_sound') === 'on') {
+      window.gameSound = 'off'
+    } else {
+      window.gameSound = 'on'
+    }
+  }
+  if (window.gameSound === 'on') {
+    sound.src = 'assets/images/sound-on.png'
+    localStorage.setItem('game_sound', 'on')
+    player.sound = true
+  } else {
+    sound.src = 'assets/images/sound-off.png'
+    localStorage.setItem('game_sound', 'off')
+    player.sound = false
+  }
+}
+
 function drawObjects(objs) {
   objs.forEach((obj) => {
     obj.draw(ctx)
@@ -257,9 +285,12 @@ function drawAllObjects(collections) {
   })
 }
 
+sound.addEventListener('click', setSoundStatus)
+
 window.addEventListener('load', () => {
   setMap()
   animation()
+  //setSoundStatus(false)
 })
 
 window.addEventListener('blur', () => {
@@ -281,6 +312,7 @@ window.addEventListener('keydown', ({ key, keyCode }) => {
   //console.log(key, keyCode)
   switch (keyCode) {
     case /*' '*/ 32:
+      console.log('jump key', player.velocity.y)
       // to check if player is on the ground then jump
       if (player.velocity.y === 0) {
         player.jump()
