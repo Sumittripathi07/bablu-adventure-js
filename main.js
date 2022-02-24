@@ -53,6 +53,7 @@ let playerTravelled = 0
 let speed = min_speed
 let isGameOver = false
 let isGameWon = false
+let isSetMapPending = false
 
 function gameOver(wait = 3000) {
   if (isGameOver) return
@@ -87,11 +88,18 @@ function gameWon(wait = 6000) {
   } else {
     currentMap = 1
   }
-  setTimeout(setMap, wait)
+  setTimeout(() => {
+    if (runAnimation) {
+      setMap()
+    } else {
+      isSetMapPending = true
+    }
+  }, wait)
 }
 
 // reset and load map
 function setMap() {
+  if (isSetMapPending) return
   const mapLoader = new MapLoader(ctx, canvas)
   lastScore += Math.floor(playerTravelled)
   mapid.textContent = currentMap
@@ -180,7 +188,7 @@ function animation() {
   setPlayerSpeed()
 
   // update player position
-  if (actions.left.tapped && player.x > 500) {
+  if (actions.left.tapped && player.x > 400) {
     player.velocity.x = -speed
   } else if (actions.right.tapped && player.x < 500) {
     player.velocity.x = speed
@@ -303,6 +311,10 @@ window.addEventListener('focus', () => {
   if (runAnimation === false && timeoutKey === false) {
     runAnimation = true
     timeoutKey = 0
+    if (isSetMapPending) {
+      isSetMapPending = false
+      setMap()
+    }
     timeoutChecker()
     animation()
   }
@@ -312,7 +324,6 @@ window.addEventListener('keydown', ({ key, keyCode }) => {
   //console.log(key, keyCode)
   switch (keyCode) {
     case /*' '*/ 32:
-      console.log('jump key', player.velocity.y)
       // to check if player is on the ground then jump
       if (player.velocity.y === 0) {
         player.jump()

@@ -1,3 +1,4 @@
+import bush from '../assets/images/bush.png'
 import castle from '../assets/images/castle.png'
 import background from '../assets/images/cloud.png'
 import hanger from '../assets/images/hanger.png'
@@ -17,6 +18,9 @@ hangerImg.src = hanger
 
 let castleImg = new Image()
 castleImg.src = castle
+
+let bushImg = new Image()
+bushImg.src = bush
 
 let backgroundImg = new Image()
 backgroundImg.src = background
@@ -40,6 +44,8 @@ export default class MapLoader {
         return castleImg
       case 'background':
         return backgroundImg
+      case 'bush':
+        return bushImg
       default:
         return null
     }
@@ -102,12 +108,14 @@ export default class MapLoader {
     const that = this
     let currentX = 0
     return objs.map((obj) => {
+      obj.x = obj.x || 0
+      obj.y = obj.y || 0
       let x = obj.x ? obj.x : 0
       let y = obj.y < 0 ? that.canvas.height + obj.y : obj.y
       let img = that.getImage(obj.image)
-      let width = that.getWidth(obj, img)
+      let width = obj.width || that.getWidth(obj, img)
 
-      if (!obj.ignorePreviousBlocks) {
+      if (!obj.ignorePreviousBlocks && !obj.at) {
         x += currentX
       }
 
@@ -118,7 +126,12 @@ export default class MapLoader {
         obj.at.from === 'end' &&
         that.objectXYs[obj.at.id]
       ) {
-        x += that.objectXYs[obj.at.id].x + that.objectXYs[obj.at.id].width
+        if (typeof obj.x !== 'undefined') {
+          x += that.objectXYs[obj.at.id].x + that.objectXYs[obj.at.id].width
+        }
+        if (typeof obj.y !== 'undefined') {
+          y = that.objectXYs[obj.at.id].y - img.height + (obj.y || 0)
+        }
       } else if (
         obj &&
         obj.at &&
@@ -126,14 +139,21 @@ export default class MapLoader {
         obj.at.from === 'start' &&
         that.objectXYs[obj.at.id]
       ) {
-        x += that.objectXYs[obj.at.id].x
+        if (typeof obj.x !== 'undefined') {
+          x += that.objectXYs[obj.at.id].x
+        }
+
+        if (typeof obj.y !== 'undefined') {
+          y = that.objectXYs[obj.at.id].y - img.height + (obj.y || 0)
+        }
       }
 
       currentX = x + width * (obj.repeat || 1)
       that.objectXYs[obj.id] = {
         x,
         y,
-        width: width * (obj.repeat || 1)
+        width: width * (obj.repeat || 1),
+        height: img.height
       }
       if (obj.repeat) {
         return that.repeatObject(obj.repeat, that.getObject(name))(

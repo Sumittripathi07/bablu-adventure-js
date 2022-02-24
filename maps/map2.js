@@ -98,7 +98,6 @@ const stageMap = {
         from: 'end'
       },
       x: -1200,
-      y: -500,
       image: 'castle',
       winner: {
         x: 85

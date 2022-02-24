@@ -91,8 +91,53 @@ const stageMap = {
   wallpapers: [
     {
       id: 15,
+      x: 0,
+      at: {
+        id: 1,
+        from: 'end'
+      },
+      image: 'bush'
+    },
+    {
+      id: 16,
+      x: -300,
+      at: {
+        id: 3,
+        from: 'end'
+      },
+      image: 'bush'
+    },
+    {
+      id: 17,
+      x: 100,
+      at: {
+        id: 7,
+        from: 'start'
+      },
+      image: 'bush'
+    },
+    {
+      id: 18,
+      x: 300,
+      at: {
+        id: 12,
+        from: 'start'
+      },
+      image: 'bush'
+    },
+    {
+      id: 19,
+      x: 500,
+      at: {
+        id: 13,
+        from: 'start'
+      },
+      image: 'bush',
+      repeat: 3
+    },
+    {
+      id: 20,
       x: -1200,
-      y: -500,
       at: {
         id: 13,
         from: 'end'
