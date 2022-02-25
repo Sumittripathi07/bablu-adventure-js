@@ -10,6 +10,7 @@ export default class GameOver {
     this.width = width ? width : this.image.width
     this.height = height ? height : this.image.height
     this.gameOverSound = new Audio(gameOverSound)
+    this.sound = true
   }
 
   draw(ctx, canvas) {
@@ -18,7 +19,9 @@ export default class GameOver {
   }
 
   playGameOverSound() {
-    this.gameOverSound.currentTime = 0
-    this.gameOverSound.play()
+    if (this.sound) {
+      this.gameOverSound.currentTime = 0
+      this.gameOverSound.play()
+    }
   }
 }

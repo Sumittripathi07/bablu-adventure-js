@@ -14,7 +14,7 @@ function createImage(img) {
 
 export default class Player {
   gravity = 1.3
-  constructor(ctx, x = 100, y = 100, width = 66, height = 150) {
+  constructor(ctx, x = 100, y = 100, width = 66, height = 120) {
     this.ctx = ctx
     this.x = x
     this.y = y
@@ -31,7 +31,6 @@ export default class Player {
     this.isGameOver = false
     this.lastX = null
     this.lastY = null
-    this.lastPlayerTravelled = null
 
     this.sprites = {
       stand: {
@@ -108,7 +107,7 @@ export default class Player {
     )
   }
 
-  update(canvas, playerTravelled) {
+  update(canvas) {
     if (this.state === 'run-left' || this.state === 'run-right') {
       if (this.frames >= 29) {
         this.frames = 0
@@ -120,7 +119,6 @@ export default class Player {
     this.draw()
     this.lastX = this.x
     this.lastY = this.y
-    this.lastPlayerTravelled = playerTravelled
 
     this.y += this.velocity.y
     this.x += this.velocity.x

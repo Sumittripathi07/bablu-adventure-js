@@ -5,10 +5,10 @@ import './style.css'
 
 const canvas = document.querySelector('canvas')
 const ctx = canvas.getContext('2d')
-const score = document.querySelector('#score')
-const mapid = document.querySelector('#mapid')
+const scoreEl = document.querySelector('#score')
+const mapIdEl = document.querySelector('#mapid')
 const lifeEl = document.querySelector('#life')
-const timeoutEl = document.querySelector('#timeout')
+//const timeoutEl = document.querySelector('#timeout')
 const sound = document.querySelector('#sound_icon')
 
 const gameOverObj = new GameOver(570, 250)
@@ -16,7 +16,8 @@ const loading = new Loading(500, 400)
 
 const min_speed = 5
 const max_speed = 15
-const accelaration = 0.25
+const accelaration = 0.2
+const totalMaps = 2
 
 // paint id of each block on canvas for map debugging
 window.paintBlockId = false
@@ -35,35 +36,39 @@ const actions = {
 }
 
 // variable declarations
-let runAnimation = true
 let currentMap = 1
-let totalMaps = 2
+let runAnimation = true
 let life = 3
-let timeout
-let elapsedTime = 0
-let timeoutKey
-
 let player
 let winner
 let lastScore = 0
 let backgrounds = []
 let stages = []
 let wallpapers = []
+let collectibles = []
+let allObjects = []
 let playerTravelled = 0
 let speed = min_speed
 let isGameOver = false
 let isGameWon = false
-let isSetMapPending = false
+
+function getCursorPosition(event) {
+  if (window.paintBlockId) {
+    const rect = canvas.getBoundingClientRect()
+    const x = event.clientX - rect.left
+    const y = event.clientY - rect.top
+    console.log('x: ' + x + ' y: ' + y)
+  }
+}
 
 function gameOver(wait = 3000) {
   if (isGameOver) return
   isGameOver = true
-  clearTimeout(timeoutKey)
   player.dead()
   player.velocity.x = 0
   player.velocity.y = -30
   setTimeout(() => {
-    --life
+    life -= 1
     lifeEl.textContent = life
   }, wait)
   if (life <= 1) {
@@ -79,7 +84,6 @@ function gameOver(wait = 3000) {
 function gameWon(wait = 6000) {
   if (isGameWon) return
   isGameWon = true
-  clearTimeout(timeoutKey)
   player.clear()
   player.velocity.x = 0
   player.velocity.y = 0
@@ -88,42 +92,34 @@ function gameWon(wait = 6000) {
   } else {
     currentMap = 1
   }
-  setTimeout(() => {
-    if (runAnimation) {
-      setMap()
-    } else {
-      isSetMapPending = true
-    }
-  }, wait)
+  setTimeout(setMap, wait)
 }
 
 // reset and load map
 function setMap() {
-  if (isSetMapPending) return
   const mapLoader = new MapLoader(ctx, canvas)
   lastScore += Math.floor(playerTravelled)
-  mapid.textContent = currentMap
+  mapIdEl.textContent = currentMap
   const map = mapLoader.load(currentMap)
   backgrounds = map.backgrounds
   wallpapers = map.wallpapers
   stages = map.stages
+  collectibles = map.collectibles
+  allObjects = [...backgrounds, ...wallpapers, ...stages, ...collectibles]
   player = mapLoader.getPlayer(gameOver)
   winner = map.winner
 
   // reset all variables
-  timeout = map.timeout
-  elapsedTime = 0
+  //timeout = map.timeout
   speed = min_speed
   playerTravelled = 0
-  score.textContent = lastScore
+  scoreEl.textContent = lastScore
   lifeEl.textContent = life
   actions.left.tapped = false
   actions.right.tapped = false
   isGameOver = false
   isGameWon = false
-  timeoutKey = 0
-  timeoutChecker()
-  setSoundStatus(false)
+  applySound(false)
 }
 
 function clearCanvas() {
@@ -134,47 +130,28 @@ function setPlayerSpeed() {
   if (actions.right.tapped || actions.left.tapped) {
     speed += accelaration
     speed = speed > max_speed ? max_speed : speed
-    score.textContent = Math.floor(playerTravelled) + lastScore
-  }
-}
-
-function timeoutChecker() {
-  let remain = timeout - ++elapsedTime
-  remain = remain < 0 ? 0 : remain
-  timeoutEl.textContent = remain
-  if (!remain) {
-    return gameOver()
-  }
-  if (isGameOver || isGameWon) {
-    return
-  }
-  if (timeoutKey !== false) {
-    timeoutKey = setTimeout(timeoutChecker, 1000)
+    scoreEl.textContent = Math.floor(playerTravelled) + lastScore
   }
 }
 
 function animation() {
-  //console.log('animation')
   // loop animation
-  if (runAnimation) {
-    requestAnimationFrame(animation)
-  }
-  if (isGameWon) {
-    return
-  }
+  requestAnimationFrame(animation)
+  if (!runAnimation) return
+  if (isGameWon) return
+
   // clear canvas
   clearCanvas()
 
   // paint all objects
-  drawAllObjects([wallpapers, backgrounds, stages])
+  drawAllObjects(allObjects)
 
   // paint player
-  player.update(canvas, playerTravelled)
+  player.update(canvas)
 
   if (life <= 0) {
     gameOverObj.draw(ctx, canvas)
   }
-
   if (isGameOver) {
     return
   }
@@ -196,31 +173,15 @@ function animation() {
     player.velocity.x = 0
     if (actions.right.tapped) {
       playerTravelled += speed
-      // move stage to the left
-      stages.forEach((stage) => {
-        stage.x -= speed
-      })
-      // move background to the left
-      backgrounds.forEach((background) => {
-        background.x -= speed * 0.66
-      })
-      // move wallpapers to the left
-      wallpapers.forEach((wallpaper) => {
-        wallpaper.x -= speed
+      // move all objects to the left
+      allObjects.forEach((obj) => {
+        obj.x -= speed * obj.speedAdjust
       })
     } else if (actions.left.tapped && playerTravelled > speed) {
       playerTravelled -= speed
-      // move stage to the right
-      stages.forEach((stage) => {
-        stage.x += speed
-      })
-      // move wallpapers to the right
-      wallpapers.forEach((wallpaper) => {
-        wallpaper.x += speed
-      })
-      // move background to the right
-      backgrounds.forEach((background) => {
-        background.x += speed * 0.66
+      // move all objects to the right
+      allObjects.forEach((obj) => {
+        obj.x += speed * obj.speedAdjust
       })
     }
   }
@@ -234,7 +195,7 @@ function animation() {
       player.x <= stage.x + stage.width
     ) {
       player.velocity.y = 0
-    } else if (
+    } /* else if (
       stage.type === 'hanger' &&
       player.x + player.width >= stage.x &&
       player.x + player.width < stage.x + stage.width &&
@@ -242,86 +203,72 @@ function animation() {
         (player.y >= stage.y && player.y + player.height > stage.y + 1))
     ) {
       player.x -= speed
-    } /*else if(
-      stage.type === "hanger" &&
-      player.state === "run-left" &&
-      ((stage.x + stage.width <= player.x)  ) &&
-      ((player.x - (stage.x + stage.width)) <= max_speed  ) &&
-      ((player.x - (stage.x + stage.width)) >= 0  ) &&
-      ((player.y < stage.y && player.y + player.height > stage.y+3) || (player.y >= stage.y && player.y + player.height > stage.y+3))
-    ){
-      console.log(stage.obj.id)
-      player.velocity.x = 0;
     }*/
+  })
+
+  collectibles.forEach((collectible) => {
+    if (
+      player.x < collectible.x + collectible.width &&
+      player.x + player.width > collectible.x &&
+      player.y < collectible.y + collectible.height &&
+      player.y + player.height > collectible.y
+    ) {
+      if (!collectible.isCollected) {
+        collectible.isCollected = true
+        playerTravelled += collectible.value
+        scoreEl.textContent = Math.floor(playerTravelled) + lastScore
+      }
+    }
   })
 }
 
-function setSoundStatus(flip) {
+function applySound(flip = true) {
   if (!flip) {
     if (localStorage.getItem('game_sound') === 'on') {
-      window.gameSound = 'on'
+      setSound('on')
     } else {
-      window.gameSound = 'off'
+      setSound('off')
     }
   } else {
     if (localStorage.getItem('game_sound') === 'on') {
-      window.gameSound = 'off'
+      setSound('off')
     } else {
-      window.gameSound = 'on'
+      setSound('on')
     }
   }
-  if (window.gameSound === 'on') {
+}
+
+function setSound(newStatus) {
+  if (newStatus === 'on') {
     sound.src = 'assets/images/sound-on.png'
     localStorage.setItem('game_sound', 'on')
     player.sound = true
+    gameOverObj.sound = true
   } else {
     sound.src = 'assets/images/sound-off.png'
     localStorage.setItem('game_sound', 'off')
     player.sound = false
+    gameOverObj.sound = false
   }
 }
 
-function drawObjects(objs) {
-  objs.forEach((obj) => {
+function drawAllObjects(collections) {
+  collections.forEach((obj) => {
     obj.draw(ctx)
   })
 }
 
-function drawAllObjects(collections) {
-  collections.forEach((item) => {
-    drawObjects(item)
-  })
-}
+canvas.addEventListener('mousedown', getCursorPosition)
 
-sound.addEventListener('click', setSoundStatus)
+sound.addEventListener('click', applySound)
 
 window.addEventListener('load', () => {
   setMap()
   animation()
-  //setSoundStatus(false)
-})
-
-window.addEventListener('blur', () => {
-  runAnimation = false
-  clearTimeout(timeoutKey)
-  timeoutKey = false
-})
-
-window.addEventListener('focus', () => {
-  if (runAnimation === false && timeoutKey === false) {
-    runAnimation = true
-    timeoutKey = 0
-    if (isSetMapPending) {
-      isSetMapPending = false
-      setMap()
-    }
-    timeoutChecker()
-    animation()
-  }
 })
 
 window.addEventListener('keydown', ({ key, keyCode }) => {
-  //console.log(key, keyCode)
+  // console.log(key, keyCode)
   switch (keyCode) {
     case /*' '*/ 32:
       // to check if player is on the ground then jump

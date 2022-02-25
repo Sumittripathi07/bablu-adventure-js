@@ -133,7 +133,8 @@ const stageMap = {
         from: 'start'
       },
       image: 'bush',
-      repeat: 3
+      repeat: 3,
+      repeatGap: 50
     },
     {
       id: 20,
@@ -146,6 +147,21 @@ const stageMap = {
       winner: {
         x: 85
       }
+    }
+  ],
+
+  collectibles: [
+    {
+      id: 21,
+      y: -200,
+      x: 200,
+      at: {
+        id: 3,
+        from: 'start'
+      },
+      image: 'coin',
+      repeat: 6,
+      repeatGap: 50
     }
   ]
 }

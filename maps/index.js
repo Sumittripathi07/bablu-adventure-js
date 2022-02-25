@@ -1,9 +1,11 @@
 import bush from '../assets/images/bush.png'
 import castle from '../assets/images/castle.png'
 import background from '../assets/images/cloud.png'
+import coin from '../assets/images/coin.png'
 import hanger from '../assets/images/hanger.png'
 import stage from '../assets/images/stage.png'
 import Background from '../background'
+import Collectible from '../collectible'
 import Player from '../player'
 import Stage from '../stage'
 import Wallpaper from '../wallpaper'
@@ -21,6 +23,9 @@ castleImg.src = castle
 
 let bushImg = new Image()
 bushImg.src = bush
+
+let coinImg = new Image()
+coinImg.src = coin
 
 let backgroundImg = new Image()
 backgroundImg.src = background
@@ -46,6 +51,8 @@ export default class MapLoader {
         return backgroundImg
       case 'bush':
         return bushImg
+      case 'coin':
+        return coinImg
       default:
         return null
     }
@@ -60,6 +67,8 @@ export default class MapLoader {
         return Background
       case 'wallpaper':
         return Wallpaper
+      case 'collectible':
+        return Collectible
       default:
         return null
     }
@@ -69,18 +78,16 @@ export default class MapLoader {
     return obj.width ? obj.width : img ? img.width : 0
   }
 
-  repeatObject(times, cls) {
+  repeatObject(times, gap, cls) {
     let that = this
     return function (x, y, img, width, height, obj) {
+      let currentX = x
       return Array.from({ length: times }, (v, i) => {
-        let retObj = new cls(
-          x + i * (width ? width : img.width),
-          y,
-          img,
-          width,
-          height,
-          obj
-        )
+        //console.log('rep[eat gap', obj.repeatGap)
+        currentX += i === 0 ? 0 : gap + (width ? width : img.width)
+        let retObj = new cls(currentX, y, img, width, height, obj)
+        retObj.speedAdjust = obj.speedAdjust || 1
+
         if (obj.winner) {
           obj.winner.x = obj.winner.x || 0
           that.winner = {
@@ -110,6 +117,7 @@ export default class MapLoader {
     return objs.map((obj) => {
       obj.x = obj.x || 0
       obj.y = obj.y || 0
+      obj.repeatGap = obj.repeatGap || 0
       let x = obj.x ? obj.x : 0
       let y = obj.y < 0 ? that.canvas.height + obj.y : obj.y
       let img = that.getImage(obj.image)
@@ -156,17 +164,15 @@ export default class MapLoader {
         height: img.height
       }
       if (obj.repeat) {
-        return that.repeatObject(obj.repeat, that.getObject(name))(
-          x,
-          y,
-          img,
-          width,
-          null,
-          obj
-        )
+        return that.repeatObject(
+          obj.repeat,
+          obj.repeatGap,
+          that.getObject(name)
+        )(x, y, img, width, null, obj)
       }
 
       let retObj = new (that.getObject(name))(x, y, img, width, null, obj)
+      retObj.speedAdjust = obj.speedAdjust || 1
       if (obj.winner) {
         obj.winner.x = obj.winner.x || 0
         that.winner = {
@@ -179,10 +185,11 @@ export default class MapLoader {
   }
 
   loadMap(mapObj, mapId) {
-    let stages, backgrounds, wallpapers, winScore
-    stages = this.loadObjects(mapObj.stages, 'stage')
-    backgrounds = this.loadObjects(mapObj.backgrounds, 'background')
-    wallpapers = this.loadObjects(mapObj.wallpapers, 'wallpaper')
+    let stages, backgrounds, wallpapers, collectibles
+    stages = this.loadObjects(mapObj.stages || [], 'stage')
+    backgrounds = this.loadObjects(mapObj.backgrounds || [], 'background')
+    wallpapers = this.loadObjects(mapObj.wallpapers || [], 'wallpaper')
+    collectibles = this.loadObjects(mapObj.collectibles || [], 'collectible')
     if (!this.winner) {
       throw Error(`No winner strategy found in map ${mapId}`)
     }
@@ -190,6 +197,7 @@ export default class MapLoader {
       stages: this.flat(stages),
       wallpapers: this.flat(wallpapers),
       backgrounds: this.flat(backgrounds),
+      collectibles: this.flat(collectibles),
       winner: this.winner,
       timeout: mapObj.timeout
     }
