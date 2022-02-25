@@ -1,3 +1,5 @@
+import soundOff from './assets/images/sound-off.png'
+import soundOn from './assets/images/sound-on.png'
 import GameOver from './gameover.js'
 import Loading from './loading.js'
 import MapLoader from './maps/index.js'
@@ -240,12 +242,12 @@ function applySound(flip = true) {
 
 function setSound(newStatus) {
   if (newStatus === 'on') {
-    sound.src = 'assets/images/sound-on.png'
+    sound.src = soundOn
     localStorage.setItem('game_sound', 'on')
     player.sound = true
     gameOverObj.sound = true
   } else {
-    sound.src = 'assets/images/sound-off.png'
+    sound.src = soundOff
     localStorage.setItem('game_sound', 'off')
     player.sound = false
     gameOverObj.sound = false
