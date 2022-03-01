@@ -272,7 +272,7 @@ window.addEventListener('load', () => {
 window.addEventListener('keydown', ({ key, keyCode }) => {
   // console.log(key, keyCode)
   switch (keyCode) {
-    case /*' '*/ 32:
+    case /*' '*/ 38:
       // to check if player is on the ground then jump
       if (player.velocity.y === 0) {
         player.jump()
